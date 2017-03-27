@@ -1,3 +1,24 @@
+# timesheetbot
+
+This is a fork of easy-peasy-bot built using the instructions at
+https://api.slack.com/tutorials/easy-peasy-bots.
+It sets up a localtunnel at port 7177 (configurable, set in index.js) which makes it worl-visible at
+https://timesheetbot.localtunnel.me.
+
+1. install node if you don't have it
+2. clone this repo
+3. choose a port, if you want to use something other than 7177, update index.js
+4. this app is a custom integration app at slack.com, it uses the client_ID and client_SECRET for this particular app
+5. npm install -g localtunnel
+6. start the localtunnel, which creates a tunnel between slack over the public internet to your dev box behind a firewall, with command
+	lt --port 7177 --subdomain timesheetbot
+7. start the node server, either via 
+	CLIENT_ID=xxx.yyy CLIENT_SECRET=abc PORT=8765 npm start
+	or in Eclipse (the client_ID and client_SECRET are hard-coded into index.js if you run via Eclipse)
+8. visit https://timesheetbot.localtunnel.me/login to login? is this necessary every time?
+9. from precocityllc.slack.com, open a direct message with timesheetbot and type hi
+
+
 # easy-peasy-bot
 
 ## The story of a (Slack)bot
