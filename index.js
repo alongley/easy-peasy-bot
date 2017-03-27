@@ -56,7 +56,7 @@ if (process.env.TOKEN || process.env.SLACK_TOKEN) {
     //	console.log('Error: If this is a custom integration, please specify TOKEN in the environment. If this is an app, please specify CLIENTID, CLIENTSECRET, and PORT in the environment');
     //process.exit(1);
     var app = require('./lib/apps');
-    var controller = app.configure(7177, '27793887239.152777161559', '2ea3424c0397106aebb2613eb902006a', config, onInstallation);
+    var controller = app.configure(7177, '345', '567', config, onInstallation);
 }
 
 
