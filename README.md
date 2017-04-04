@@ -15,7 +15,9 @@ https://timesheetbot.localtunnel.me.
 7. start the node server, either via 
 	CLIENT_ID=xxx.yyy CLIENT_SECRET=abc PORT=8765 npm start
 	or in Eclipse (the client_ID and client_SECRET are hard-coded into index.js if you run via Eclipse)
-8. visit https://timesheetbot.localtunnel.me/login to login? is this necessary every time?
+8. visit https://timesheetbot.localtunnel.me/login to login
+ (? is this necessary every time?)
+ click the authorize button
 9. from precocityllc.slack.com, open a direct message with timesheetbot and type hi
 
 

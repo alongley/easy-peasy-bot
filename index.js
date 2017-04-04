@@ -88,6 +88,66 @@ controller.on('bot_channel_join', function (bot, message) {
     bot.reply(message, "I'm here!")
 });
 
+controller.on('slash_command', function(bot,message) {
+	
+	if (message.command == '/timeoff') {
+		var userId = message.user;
+		var response_url = message.response_url;
+		var token = message.token;
+		var res = bot.res;
+		var myMessage = message;
+		
+		bot.api.users.info({user: userId}, function(err, user) {
+	    	if (user && user.ok) {
+	    	    controller.storage.users.get(userId, function(err, lsuser) {
+	    	        lsuser.email = user.user.profile.email;
+	    	        lsuser.color = user.user.color;
+	    	        lsuser.first_name = user.user.profile.first_name;
+	    	        controller.storage.users.save(lsuser);
+	    	    });
+	
+	    		bot.replyPrivate(myMessage, 'Hi ' + user.user.profile.first_name + ', what would you like to do in regards to time off?');
+	    		
+	    		var omessage = {
+    				attachments:[
+	    	            {
+	    	                title: 'Please select an option',
+	    	                callback_id: '123',
+	    	                attachment_type: 'default',
+	    	                actions: [
+	    	                    {
+	    	                        "name":"balance",
+	    	                        "text": "See Balances",
+	    	                        "value": "balance",
+	    	                        "type": "button",
+	    	                    },
+	    	                    {
+	    	                        "name":"schedule",
+	    	                        "text": "Request time off",
+	    	                        "value": "schedule",
+	    	                        "type": "button",
+	    	                    },
+	    	                    {
+	    	                        "name":"history",
+	    	                        "text": "View History",
+	    	                        "value": "history",
+	    	                        "type": "button",
+	    	                    }
+	    	                ]
+	    	            }
+	    	        ]
+	    		};
+	    		sendMessageToSlackResponseURL(response_url, omessage);
+	    	}
+	    	else {
+	    		bot.replyPrivate(myMessage, 'I\'m sorry, I can\'t seem to find out who you are! You\'ll need to logon to TriNet to get that information.');
+	    	}
+	    });
+	} else {
+		bot.replyPrivate(message, 'Hi! I don\t know what that command is you\'re trying to use: ' + message.command);
+	}
+});
+
 controller.hears(['hello', 'hi', 'greetings'],
 	    ['direct_mention', 'mention', 'direct_message'], 
 	    function (bot, message) {
@@ -198,14 +258,77 @@ controller.on('interactive_message_callback', function(bot, message) {
         	
         	if (action == 'balance') {
         		message.text = 'Checking balances. Give me a minute.';
+        		sendMessageToSlackResponseURL(response_url, message);
         	} else if (action == 'schedule') {
-        		message.text = 'Ok, you want some time off. What type?';
+        		message.attachments = [
+        					            {
+        					                title: 'Ok, you want some time off. What type?',
+        					                callback_id: '123',
+        					                attachment_type: 'default',
+        					                actions: [
+        										{
+        										    "name":"vacation",
+        										    "text": "Vacation Time",
+        										    "value": "vacation",
+        										    "type": "button",
+        										},
+        										{
+        										    "name":"pto",
+        										    "text": "PTO",
+        										    "value": "pto",
+        										    "type": "button",
+        										},
+        										{
+        										    "name":"sick",
+        										    "text": "Sick Time",
+        										    "value": "sick",
+        										    "type": "button",
+        										}
+        					                ]
+        					            }
+        					        ];
+        		
+        		sendMessageToSlackResponseURL(response_url, message);
         	} else if (action == 'history') {
-        		message.text = 'Checking history. Give me a minute.';
+        		//message.text = 'Checking history. Give me a minute.';
+            	//sendMessageToSlackResponseURL(response_url, message);
+        		message.text = 'You took 8 hours of PTO on 12/25/2016.';
+        		message.attachments = [
+        					            {
+        					                title: 'Would you like to do one of the following?',
+        					                callback_id: '123',
+        					                attachment_type: 'default',
+							                actions: [
+														{
+							    	                        "name":"balance",
+							    	                        "text": "See Balances",
+							    	                        "value": "balance",
+							    	                        "type": "button",
+														},
+														{
+														    "name":"schedule",
+														    "text": "Request time off",
+														    "value": "schedule",
+														    "type": "button",
+														}
+									                ]
+        					            }
+        					        ];
+        		
+        		sendMessageToSlackResponseURL(response_url, message);
+        	} else if (action == 'vacation') {
+        		message.text = "Great! Vacation time. What is the start date? (Hint, you can enter Jan 1, 2017 or 01/01/2017)";
+        		sendMessageToSlackResponseURL(response_url, message);
+        	} else if (action == 'pto') {
+        		message.text = "OK! Paid time off. What is the start date? (Hint, you can enter Jan 1, 2017 or 01/01/2017)";
+        		sendMessageToSlackResponseURL(response_url, message);
+        	} else if (action == 'sick') {
+        		message.text = "Uh oh, get better soon! What is the start date? (Hint, you can enter Jan 1, 2017 or 01/01/2017)";
+        		sendMessageToSlackResponseURL(response_url, message);
         	} else {
         		message.text = "I'm sorry, I don't understand. You requested action " + action + ". I don't know what that means.";
+            	sendMessageToSlackResponseURL(response_url, message);
         	}
-        	sendMessageToSlackResponseURL(response_url, message);
 
         	if (action == 'balance') {
         		getHours(response_url, message, email, first_name);
@@ -256,7 +379,7 @@ controller.on('interactive_message_callback', function(bot, message) {
         		        }
         		    ]
         		};
-        	bot.replyInteractive(message, reply);
+        	//bot.replyInteractive(message, reply);
         	
         } else {
             bot.reply(message,'I don\'t know who you are!');
@@ -294,7 +417,7 @@ function sendMessageToSlackResponseURL(responseURL, JSONmessage){
     }
     request(postOptions, function(error, response, body) {
         if (error){
-            // handle errors as you see fit
+            var foo = "";
         }
     });
 }
@@ -495,22 +618,22 @@ function getHours(response_url, message, email, first_name) {
 									    	text: msg,
 									        attachments:[
 									            {
-									                title: 'Anything else I can help you with today, ' + first_name + '?',
+									                title: 'Would you like to do one of the following?',
 									                callback_id: '123',
 									                attachment_type: 'default',
 									                actions: [
-									                    {
-									                        "name":"yes",
-									                        "text": "Yes",
-									                        "value": "yes",
-									                        "type": "button",
-									                    },
-									                    {
-									                        "name":"no",
-									                        "text": "No",
-									                        "value": "no",
-									                        "type": "button",
-									                    }
+														{
+														    "name":"schedule",
+														    "text": "Request time off",
+														    "value": "schedule",
+														    "type": "button",
+														},
+														{
+														    "name":"history",
+														    "text": "View History",
+														    "value": "history",
+														    "type": "button",
+														}
 									                ]
 									            }
 									        ]
